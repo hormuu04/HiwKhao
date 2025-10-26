@@ -6,9 +6,23 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS Configuration
+// CORS Configuration - Allow all Vercel deployments
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and any .vercel.app domain
+    if (
+      origin.includes('localhost') || 
+      origin.includes('.vercel.app') ||
+      origin === process.env.FRONTEND_URL
+    ) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };
