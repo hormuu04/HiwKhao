@@ -1,6 +1,12 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Force production URL based on hostname (Same as api.js)
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000/api'
+  : 'https://hiwkhao.onrender.com/api';
+
+// Debug log
+console.log('🔐 Auth API_BASE_URL:', API_BASE_URL);
 
 // Create axios instance with default config
 const api = axios.create({
