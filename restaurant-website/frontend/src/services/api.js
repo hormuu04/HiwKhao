@@ -1,9 +1,13 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Force production URL (temporary fix)
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000/api'
+  : 'https://hiwkhao.onrender.com/api';
 
 // Debug: ดูว่า API_BASE_URL เป็นค่าอะไร
 console.log('🔍 API_BASE_URL:', API_BASE_URL);
+console.log('🔍 Hostname:', window.location.hostname);
 console.log('🔍 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
 
 const api = axios.create({
