@@ -1,0 +1,163 @@
+.add-restaurant {
+  padding: 2rem 0;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.add-restaurant h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #ff3131;
+  font-size: 2.5rem;
+}
+
+.restaurant-form {
+  background: #fff;
+  color: #222;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #ff3131;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem;
+  border: 2px solid #ff3131;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  font-family: inherit;
+  background: #fff;
+  color: #222;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #222;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.error-message {
+  background: #ffeaea;
+  color: #ff3131;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  border: 1px solid #ff3131;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.form-actions .btn {
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 1rem;
+}
+
+.form-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form-actions .btn-primary {
+  background: #ff3131;
+  color: #fff;
+}
+
+.form-actions .btn-primary:hover:not(:disabled) {
+  background: #222;
+  color: #ff3131;
+}
+
+.form-actions .btn-secondary {
+  background: #222;
+  color: #fff;
+}
+
+.form-actions .btn-secondary:hover:not(:disabled) {
+  background: #ff3131;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .add-restaurant h1 {
+    font-size: 2rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .restaurant-form {
+    margin: 0 1rem;
+  }
+}
+
+input, textarea, select {
+  color: #222 !important;
+  background: #fff;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #888;
+  opacity: 1;
+}
+
+.form-group.coordinate-row {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+.form-group.coordinate-row label {
+  margin-bottom: 0;
+  min-width: 60px;
+}
+.form-group.coordinate-row input {
+  flex: 1;
+  min-width: 200px;
+} 

@@ -1,0 +1,180 @@
+.register-owner-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.register-owner-form-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.register-owner-form-header {
+  background: #ff3131;
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.register-owner-form-header h2 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.register-owner-form-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: white;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.register-owner-form {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: red;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #ff3131;
+}
+
+.form-group input.error {
+  border-color: #e74c3c;
+}
+
+.field-error {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.error-message {
+  background: #ffeaea;
+  color: #e74c3c;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  text-align: center;
+  border: 1px solid #e74c3c;
+}
+
+.register-owner-btn {
+  width: 100%;
+  background: #ff3131;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.register-owner-btn:hover:not(:disabled) {
+  background: #e02828;
+}
+
+.register-owner-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.register-owner-form-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #eee;
+  text-align: left;
+}
+
+.register-owner-form-footer p {
+  margin: 0 0 0.5rem 0;
+  color: red;
+  line-height: 1.4;
+}
+
+.register-owner-form-footer p:last-child {
+  margin-bottom: 0;
+}
+
+.switch-btn {
+  background: none;
+  border: none;
+  color: #ff3131;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.switch-btn:hover {
+  color: #e02828;
+}
+
+@media (max-width: 480px) {
+  .register-owner-form-container {
+    width: 95%;
+    margin: 1rem;
+  }
+  
+  .register-owner-form-header,
+  .register-owner-form {
+    padding: 1rem;
+  }
+}

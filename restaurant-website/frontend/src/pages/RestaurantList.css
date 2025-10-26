@@ -1,0 +1,119 @@
+.restaurant-list {
+  padding: 2rem 0;
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.restaurant-list h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: var(--color-white);
+  font-size: 2.5rem;
+}
+
+.filters-section {
+  background: var(--color-card);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 2rem;
+  color: var(--color-white);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-group label {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.filter-group input,
+.filter-group select {
+  padding: 0.75rem;
+  border: 2px solid var(--color-primary);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  background: var(--color-card);
+  color: var(--color-white);
+}
+
+.filter-group input:focus,
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.clear-filters-btn {
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  transform: translateY(-2px);
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: var(--color-gray);
+}
+
+.error-message {
+  background: var(--color-pink);
+  color: var(--color-primary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-gray);
+}
+
+.no-results p {
+  font-size: 1.2rem;
+}
+
+.restaurants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .restaurant-list h1 {
+    font-size: 2rem;
+  }
+  
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .restaurants-grid {
+    grid-template-columns: 1fr;
+  }
+} 
