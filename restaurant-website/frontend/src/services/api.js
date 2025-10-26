@@ -1,14 +1,16 @@
 import axios from 'axios';
 
-// Force production URL (temporary fix)
+// Force production URL based on hostname (Updated: 2025-10-26)
 const API_BASE_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:5000/api'
   : 'https://hiwkhao.onrender.com/api';
 
-// Debug: ดูว่า API_BASE_URL เป็นค่าอะไร
+// Debug logs
+console.log('=== API Configuration ===');
 console.log('🔍 API_BASE_URL:', API_BASE_URL);
-console.log('🔍 Hostname:', window.location.hostname);
-console.log('🔍 REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
+console.log('🔍 Current Hostname:', window.location.hostname);
+console.log('🔍 REACT_APP_API_URL from env:', process.env.REACT_APP_API_URL);
+console.log('========================');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
