@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import RestaurantCard from '../components/RestaurantCard';
 import { restaurantAPI } from '../services/api';
 import './RestaurantList.css';
@@ -27,15 +27,7 @@ const RestaurantList = () => {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  useEffect(() => {
-    fetchRestaurants();
-  }, [filters]);
-
-  useEffect(() => {
-    fetchCuisines();
-  }, []);
-
-  const fetchRestaurants = async () => {
+  const fetchRestaurants = useCallback(async () => {
     try {
       setLoading(true);
       const response = await restaurantAPI.getAll(filters);
@@ -47,16 +39,24 @@ const RestaurantList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  const fetchCuisines = async () => {
+  useEffect(() => {
+    fetchRestaurants();
+  }, [fetchRestaurants]);
+
+  const fetchCuisines = useCallback(async () => {
     try {
       const response = await restaurantAPI.getCuisines();
       setCuisines(response.data);
     } catch (err) {
       console.error('Error fetching cuisines:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCuisines();
+  }, [fetchCuisines]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

@@ -5,7 +5,7 @@ import './Header.css';
 // import logo from '../logo.svg';
 
 const Header = () => {
-  const { user, logout, isAuthenticated, role, upgradeToOwner } = useAuth();
+  const { user, logout, isAuthenticated, role } = useAuth();
 
   const handleLogout = () => {
     logout();
