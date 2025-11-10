@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { restaurantAPI } from '../services/api';
@@ -96,14 +96,89 @@ const RestaurantDetail = () => {
 
 const ImageArea = ({ restaurant }) => {
   const { name, imageUrl, imagePath } = restaurant;
+  const currentOrigin = useMemo(() => {
+    if (typeof window === 'undefined') return '';
+    return window.location.origin;
+  }, []);
+
+  const currentProtocol = useMemo(() => {
+    if (typeof window === 'undefined') return 'https:';
+    return window.location.protocol;
+  }, []);
+
+  const apiOrigin = useMemo(() => {
+    const envUrl = process.env.REACT_APP_API_URL || '';
+    if (!envUrl) return currentOrigin;
+    try {
+      const parsed = new URL(envUrl, currentOrigin || undefined);
+      return `${parsed.protocol}//${parsed.host}`;
+    } catch (_) {
+      return envUrl.replace(/\/api\/?$/, '') || currentOrigin;
+    }
+  }, [currentOrigin]);
+
+  const normalizeImageSource = useCallback((raw) => {
+    if (!raw) return null;
+    let trimmed = raw.trim();
+    if (!trimmed) return null;
+
+    if (/^data:/i.test(trimmed)) {
+      return trimmed;
+    }
+
+    if (trimmed.startsWith('//')) {
+      return `${currentProtocol === 'https:' ? 'https:' : 'http:'}${trimmed}`;
+    }
+
+    if (/^https?:\/\//i.test(trimmed)) {
+      try {
+        const parsedUrl = new URL(trimmed);
+        const needsSecureScheme = currentProtocol === 'https:' && parsedUrl.protocol === 'http:';
+        const isLocalhost =
+          parsedUrl.hostname === 'localhost' ||
+          parsedUrl.hostname === '127.0.0.1' ||
+          parsedUrl.hostname === '0.0.0.0';
+        const base =
+          isLocalhost && apiOrigin
+            ? apiOrigin
+            : `${needsSecureScheme ? 'https:' : parsedUrl.protocol}//${parsedUrl.host}`;
+        const finalUrl = `${base}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+        return finalUrl;
+      } catch (_) {
+        if (currentProtocol === 'https:' && trimmed.startsWith('http://')) {
+          return trimmed.replace(/^http:\/\//i, 'https://');
+        }
+        return trimmed;
+      }
+    }
+
+    if (trimmed.startsWith('/')) {
+      if (apiOrigin) {
+        return `${apiOrigin}${trimmed}`;
+      }
+      return `${currentOrigin}${trimmed}`;
+    }
+
+    if (apiOrigin) {
+      return `${apiOrigin}/uploads/${trimmed}`;
+    }
+
+    return `${currentOrigin}/uploads/${trimmed}`;
+  }, [apiOrigin, currentOrigin, currentProtocol]);
+
   const images = useMemo(() => {
-    if (imagePath) return [`http://localhost:5000${imagePath}`];
+    if (imagePath) {
+      const normalized = normalizeImageSource(imagePath);
+      return normalized ? [normalized] : [];
+    }
+
     if (!imageUrl) return [];
+
     return imageUrl
       .split(',')
-      .map((u) => u.trim())
-      .filter((u) => u.length > 0);
-  }, [imageUrl, imagePath]);
+      .map((u) => normalizeImageSource(u))
+      .filter((u) => !!u);
+  }, [imagePath, imageUrl, normalizeImageSource]);
 
   const [index, setIndex] = useState(0);
 

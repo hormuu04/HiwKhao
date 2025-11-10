@@ -4,8 +4,22 @@ import './RestaurantCard.css';
 
 const RestaurantCard = ({ restaurant }) => {
   const { _id, name, address, description, cuisine, priceRange, imageUrl, imagePath } = restaurant;
+  const apiBase = process.env.REACT_APP_API_URL || '';
+  // Derive an origin for static files by stripping trailing /api if present
+  const assetBase = React.useMemo(() => {
+    if (!apiBase) return '';
+    try {
+      const url = new URL(apiBase, typeof window !== 'undefined' ? window.location.origin : undefined);
+      const path = url.pathname.replace(/\/+$/, '');
+      const withoutApi = path.endsWith('/api') ? path.slice(0, -4) : path;
+      return `${url.protocol}//${url.host}${withoutApi}`;
+    } catch {
+      return apiBase.replace(/\/api\/?$/, '');
+    }
+  }, [apiBase]);
+
   const coverImage = imagePath
-    ? `http://localhost:5000${imagePath}`
+    ? `${assetBase}${imagePath}`
     : (imageUrl ? imageUrl.split(',')[0].trim() : '');
 
   const getPriceRangeText = (range) => {
