@@ -35,7 +35,19 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     } catch (error) {
-      console.error('Auth check error:', error);
+      // If 401, token is invalid - clear it and continue without user
+      if (error.response?.status === 401) {
+        try {
+          localStorage.removeItem('token');
+        } catch (_) {
+          // ignore storage errors
+        }
+        setUser(null);
+      }
+      // Don't log 401 errors as they're expected when no valid token exists
+      if (error.response?.status !== 401) {
+        console.error('Auth check error:', error);
+      }
       setLoading(false);
     }
   };

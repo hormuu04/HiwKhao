@@ -32,6 +32,36 @@ const api = axios.create({
   },
 });
 
+// Attach Authorization header from localStorage on every request
+api.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+  } catch (_) {
+    // ignore storage errors
+  }
+  return config;
+});
+
+// Handle 401 errors - clear token if unauthorized
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear invalid token
+      try {
+        localStorage.removeItem('token');
+      } catch (_) {
+        // ignore storage errors
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth API calls
 export const authAPI = {
   // Register new user

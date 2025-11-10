@@ -96,75 +96,91 @@ const RestaurantDetail = () => {
 
 const ImageArea = ({ restaurant }) => {
   const { name, imageUrl, imagePath } = restaurant;
-  const currentOrigin = useMemo(() => {
-    if (typeof window === 'undefined') return '';
-    return window.location.origin;
-  }, []);
-
-  const currentProtocol = useMemo(() => {
-    if (typeof window === 'undefined') return 'https:';
-    return window.location.protocol;
-  }, []);
-
-  const apiOrigin = useMemo(() => {
-    const envUrl = process.env.REACT_APP_API_URL || '';
-    if (!envUrl) return currentOrigin;
-    try {
-      const parsed = new URL(envUrl, currentOrigin || undefined);
-      return `${parsed.protocol}//${parsed.host}`;
-    } catch (_) {
-      return envUrl.replace(/\/api\/?$/, '') || currentOrigin;
+  
+  // Get API base URL using same logic as api.js
+  const getApiBaseUrl = useMemo(() => {
+    const resolvedEnv = process.env.REACT_APP_API_URL && process.env.REACT_APP_API_URL.trim();
+    
+    function ensureApiSuffix(urlString) {
+      try {
+        const base = new URL(urlString, typeof window !== 'undefined' ? window.location.origin : undefined);
+        const path = base.pathname.replace(/\/+$/, '');
+        const normalizedPath = path.endsWith('/api') ? path : `${path}/api`;
+        return `${base.protocol}//${base.host}${normalizedPath}`;
+      } catch {
+        const trimmed = (urlString || '').replace(/\/+$/, '');
+        return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
+      }
     }
-  }, [currentOrigin]);
+    
+    return resolvedEnv
+      ? ensureApiSuffix(resolvedEnv)
+      : (window.location.hostname === 'localhost'
+          ? 'http://localhost:5000/api'
+          : 'https://hiwkhao.onrender.com/api');
+  }, []);
+
+  // Get API origin (without /api) for serving static files
+  const apiOrigin = useMemo(() => {
+    try {
+      const url = new URL(getApiBaseUrl);
+      return `${url.protocol}//${url.host}`;
+    } catch {
+      return window.location.hostname === 'localhost'
+        ? 'http://localhost:5000'
+        : 'https://hiwkhao.onrender.com';
+    }
+  }, [getApiBaseUrl]);
 
   const normalizeImageSource = useCallback((raw) => {
     if (!raw) return null;
     let trimmed = raw.trim();
     if (!trimmed) return null;
 
+    // Handle data URIs
     if (/^data:/i.test(trimmed)) {
       return trimmed;
     }
 
+    // Handle protocol-relative URLs
     if (trimmed.startsWith('//')) {
-      return `${currentProtocol === 'https:' ? 'https:' : 'http:'}${trimmed}`;
+      return `https:${trimmed}`;
     }
 
+    // Handle absolute URLs (http:// or https://)
     if (/^https?:\/\//i.test(trimmed)) {
+      // Replace any localhost:5000 with production API origin
+      trimmed = trimmed.replace(/http:\/\/localhost:5000/g, apiOrigin);
+      trimmed = trimmed.replace(/https:\/\/localhost:5000/g, apiOrigin);
+      trimmed = trimmed.replace(/http:\/\/127\.0\.0\.1:5000/g, apiOrigin);
+      trimmed = trimmed.replace(/https:\/\/127\.0\.0\.1:5000/g, apiOrigin);
+      
+      // If still contains localhost or 127.0.0.1, replace with apiOrigin
       try {
         const parsedUrl = new URL(trimmed);
-        const needsSecureScheme = currentProtocol === 'https:' && parsedUrl.protocol === 'http:';
         const isLocalhost =
           parsedUrl.hostname === 'localhost' ||
           parsedUrl.hostname === '127.0.0.1' ||
           parsedUrl.hostname === '0.0.0.0';
-        const base =
-          isLocalhost && apiOrigin
-            ? apiOrigin
-            : `${needsSecureScheme ? 'https:' : parsedUrl.protocol}//${parsedUrl.host}`;
-        const finalUrl = `${base}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
-        return finalUrl;
-      } catch (_) {
-        if (currentProtocol === 'https:' && trimmed.startsWith('http://')) {
-          return trimmed.replace(/^http:\/\//i, 'https://');
+        
+        if (isLocalhost) {
+          return `${apiOrigin}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
         }
-        return trimmed;
+      } catch {
+        // If URL parsing fails, return as-is after localhost replacement
       }
+      
+      return trimmed;
     }
 
+    // Handle relative paths starting with /
     if (trimmed.startsWith('/')) {
-      if (apiOrigin) {
-        return `${apiOrigin}${trimmed}`;
-      }
-      return `${currentOrigin}${trimmed}`;
+      return `${apiOrigin}${trimmed}`;
     }
 
-    if (apiOrigin) {
-      return `${apiOrigin}/uploads/${trimmed}`;
-    }
-
-    return `${currentOrigin}/uploads/${trimmed}`;
-  }, [apiOrigin, currentOrigin, currentProtocol]);
+    // Handle just filenames - assume they're in /uploads/
+    return `${apiOrigin}/uploads/${trimmed}`;
+  }, [apiOrigin]);
 
   const images = useMemo(() => {
     if (imagePath) {
