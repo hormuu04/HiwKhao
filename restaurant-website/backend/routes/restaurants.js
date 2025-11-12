@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { authenticateToken, requireRole } = require('../middleware/auth');
-const { upload } = require('../middleware/upload');
+const { upload, optionalUpload } = require('../middleware/upload');
 const {
   getAllRestaurants,
   getRestaurant,
@@ -27,10 +27,12 @@ router.get('/:id', getRestaurant);
 
 // Protected routes (ต้องเข้าสู่ระบบเท่านั้น)
 // POST /api/restaurants - Create new restaurant (owner only)
-router.post('/', authenticateToken, requireRole('owner'), upload.single('image'), createRestaurant);
+// รองรับทั้ง JSON (imageUrl) และ multipart/form-data (ไฟล์อัปโหลด)
+router.post('/', authenticateToken, requireRole('owner'), optionalUpload, createRestaurant);
 
 // PUT /api/restaurants/:id - Update restaurant (owner only)
-router.put('/:id', authenticateToken, requireRole('owner'), upload.single('image'), updateRestaurant);
+// รองรับทั้ง JSON (imageUrl) และ multipart/form-data (ไฟล์อัปโหลด)
+router.put('/:id', authenticateToken, requireRole('owner'), optionalUpload, updateRestaurant);
 
 // DELETE /api/restaurants/:id - Delete restaurant (owner only)
 router.delete('/:id', authenticateToken, requireRole('owner'), deleteRestaurant);

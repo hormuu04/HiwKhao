@@ -45,8 +45,20 @@ const getRestaurant = async (req, res) => {
 const createRestaurant = async (req, res) => {
   try {
     const payload = { ...req.body, owner: req.userId };
+    // ถ้ามีการอัปโหลดไฟล์ ให้ใช้ imagePath
     if (req.file) {
       payload.imagePath = `/uploads/${req.file.filename}`;
+      // ถ้ามีการอัปโหลดไฟล์ ให้ลบ imageUrl ออก (ใช้ไฟล์แทน)
+      delete payload.imageUrl;
+    } else if (req.body.imageUrl && typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim()) {
+      // ถ้ามี imageUrl แต่ไม่มีไฟล์อัปโหลด ให้ใช้ imageUrl
+      payload.imageUrl = req.body.imageUrl.trim();
+      // ลบ imagePath ออก (ใช้ URL แทน)
+      delete payload.imagePath;
+    } else {
+      // ถ้าไม่มีทั้งไฟล์และ imageUrl ให้ลบทั้งสองออก
+      delete payload.imageUrl;
+      delete payload.imagePath;
     }
     const restaurant = new Restaurant(payload);
     const newRestaurant = await restaurant.save();
@@ -67,8 +79,22 @@ const updateRestaurant = async (req, res) => {
       return res.status(403).json({ message: 'ไม่มีสิทธิ์แก้ไขร้านนี้' });
     }
     const update = { ...req.body };
+    // ถ้ามีการอัปโหลดไฟล์ ให้ใช้ imagePath
     if (req.file) {
       update.imagePath = `/uploads/${req.file.filename}`;
+      // ถ้ามีการอัปโหลดไฟล์ ให้ลบ imageUrl ออก (ใช้ไฟล์แทน)
+      delete update.imageUrl;
+    } else if (req.body.imageUrl !== undefined) {
+      // ถ้ามี imageUrl แต่ไม่มีไฟล์อัปโหลด ให้ใช้ imageUrl
+      if (typeof req.body.imageUrl === 'string' && req.body.imageUrl.trim()) {
+        update.imageUrl = req.body.imageUrl.trim();
+        // ลบ imagePath ออก (ใช้ URL แทน)
+        delete update.imagePath;
+      } else {
+        // ถ้า imageUrl เป็นค่าว่าง หรือ null ให้ลบทั้ง imageUrl และ imagePath
+        update.imageUrl = '';
+        delete update.imagePath;
+      }
     }
     const updated = await Restaurant.findByIdAndUpdate(
       req.params.id,

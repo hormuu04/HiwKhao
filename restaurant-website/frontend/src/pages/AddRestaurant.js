@@ -15,6 +15,7 @@ const AddRestaurant = () => {
     website: '',
     openingHours: '',
     image: null,
+    imageUrl: '',
     location: {
       latitude: '',
       longitude: ''
@@ -64,23 +65,43 @@ const AddRestaurant = () => {
     setError('');
 
     try {
-      const fd = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'location') {
-          if (value?.latitude !== '' && value?.latitude !== undefined) {
-            fd.append('location.latitude', value.latitude);
-          }
-          if (value?.longitude !== '' && value?.longitude !== undefined) {
-            fd.append('location.longitude', value.longitude);
-          }
-        } else if (key === 'image') {
-          if (value) fd.append('image', value);
-        } else if (value !== undefined && value !== null) {
-          fd.append(key, value);
+      // ถ้ามี imageUrl แต่ไม่มีไฟล์อัปโหลด ให้ส่งเป็น JSON
+      if (formData.imageUrl && !formData.image) {
+        const jsonData = { ...formData };
+        delete jsonData.image;
+        // แปลง location object เป็น nested object
+        if (jsonData.location.latitude !== '' && jsonData.location.longitude !== '') {
+          jsonData.location = {
+            latitude: parseFloat(jsonData.location.latitude),
+            longitude: parseFloat(jsonData.location.longitude)
+          };
+        } else {
+          delete jsonData.location;
         }
-      });
+        // ลบ coordinate ออก (ไม่ต้องส่ง)
+        delete jsonData.coordinate;
+        await restaurantAPI.create(jsonData);
+      } else {
+        // ถ้ามีไฟล์อัปโหลด ให้ส่งเป็น FormData
+        const fd = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          if (key === 'location') {
+            if (value?.latitude !== '' && value?.latitude !== undefined) {
+              fd.append('location.latitude', value.latitude);
+            }
+            if (value?.longitude !== '' && value?.longitude !== undefined) {
+              fd.append('location.longitude', value.longitude);
+            }
+          } else if (key === 'image') {
+            if (value) fd.append('image', value);
+          } else if (key !== 'imageUrl' && value !== undefined && value !== null && value !== '') {
+            // ถ้ามีไฟล์อัปโหลด ให้ไม่ส่ง imageUrl
+            fd.append(key, value);
+          }
+        });
 
-      await restaurantAPI.create(fd);
+        await restaurantAPI.create(fd);
+      }
       alert('เพิ่มร้านอาหารเรียบร้อยแล้ว!');
       navigate('/restaurants');
     } catch (err) {
@@ -217,7 +238,22 @@ const AddRestaurant = () => {
             </div>
 
             <div className="form-group full-width">
-              <label htmlFor="image">รูปภาพ</label>
+              <label htmlFor="imageUrl">URL รูปภาพ</label>
+              <input
+                type="url"
+                id="imageUrl"
+                name="imageUrl"
+                value={formData.imageUrl}
+                onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
+              />
+              <p style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                หรืออัปโหลดไฟล์ด้านล่าง
+              </p>
+            </div>
+
+            <div className="form-group full-width">
+              <label htmlFor="image">อัปโหลดรูปภาพ</label>
               <input
                 type="file"
                 id="image"
@@ -225,6 +261,9 @@ const AddRestaurant = () => {
                 accept="image/*"
                 onChange={handleChange}
               />
+              <p style={{ fontSize: '0.9em', color: '#666', marginTop: '5px' }}>
+                หากอัปโหลดไฟล์ ระบบจะใช้ไฟล์แทน URL
+              </p>
             </div>
           </div>
 

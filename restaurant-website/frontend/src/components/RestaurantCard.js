@@ -41,15 +41,20 @@ const RestaurantCard = ({ restaurant }) => {
   }, [getApiBaseUrl]);
 
   // Normalize image URL - handle both relative paths and absolute URLs
+  // Priority: imagePath > imageUrl
   const coverImage = React.useMemo(() => {
     let imageSrc = null;
     
+    // ถ้ามี imagePath ให้ใช้ imagePath ก่อน (ไฟล์อัปโหลด)
     if (imagePath) {
-      // If imagePath is a full URL, check if it's localhost and replace it
       if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-        // Replace localhost:5000 with production API origin
-        imageSrc = imagePath.replace(/http:\/\/localhost:5000/g, apiOrigin);
-        imageSrc = imageSrc.replace(/https:\/\/localhost:5000/g, apiOrigin);
+        // Full URL - ใช้โดยตรง (แต่ถ้าเป็น localhost ให้ replace)
+        if (imagePath.includes('localhost:5000')) {
+          imageSrc = imagePath.replace(/http:\/\/localhost:5000/g, apiOrigin);
+          imageSrc = imageSrc.replace(/https:\/\/localhost:5000/g, apiOrigin);
+        } else {
+          imageSrc = imagePath;
+        }
       } else if (imagePath.startsWith('/')) {
         // Relative path - prepend API origin
         imageSrc = `${apiOrigin}${imagePath}`;
@@ -57,24 +62,35 @@ const RestaurantCard = ({ restaurant }) => {
         // Just filename - prepend /uploads/
         imageSrc = `${apiOrigin}/uploads/${imagePath}`;
       }
-    } else if (imageUrl) {
-      // Handle imageUrl (comma-separated)
-      const firstUrl = imageUrl.split(',')[0].trim();
-      if (firstUrl.startsWith('http://') || firstUrl.startsWith('https://')) {
-        // Replace localhost:5000 with production API origin
-        imageSrc = firstUrl.replace(/http:\/\/localhost:5000/g, apiOrigin);
-        imageSrc = imageSrc.replace(/https:\/\/localhost:5000/g, apiOrigin);
-      } else if (firstUrl.startsWith('/')) {
-        // Relative path - prepend API origin
-        imageSrc = `${apiOrigin}${firstUrl}`;
-      } else if (firstUrl.startsWith('data:')) {
-        // Data URI - use as-is
-        imageSrc = firstUrl;
-      } else {
-        // Assume it's a filename or relative path
-        imageSrc = firstUrl.startsWith('uploads/') 
-          ? `${apiOrigin}/${firstUrl}`
-          : `${apiOrigin}/uploads/${firstUrl}`;
+    } 
+    // ถ้าไม่มี imagePath แต่มี imageUrl ให้ใช้ imageUrl
+    else if (imageUrl) {
+      // Handle imageUrl (อาจเป็น comma-separated หรือ URL เดียว)
+      const url = typeof imageUrl === 'string' ? imageUrl.split(',')[0].trim() : '';
+      
+      if (!url) {
+        return '';
+      }
+      
+      // ถ้าเป็น URL แบบเต็ม (http:// หรือ https://) ให้ใช้โดยตรง
+      if (url.startsWith('http://') || url.startsWith('https://')) {
+        imageSrc = url;
+      } 
+      // ถ้าเป็น data URI (base64) ให้ใช้โดยตรง
+      else if (url.startsWith('data:')) {
+        imageSrc = url;
+      }
+      // ถ้าเป็น relative path ที่เริ่มด้วย /
+      else if (url.startsWith('/')) {
+        imageSrc = `${apiOrigin}${url}`;
+      }
+      // ถ้าเป็น path ที่เริ่มด้วย uploads/
+      else if (url.startsWith('uploads/')) {
+        imageSrc = `${apiOrigin}/${url}`;
+      }
+      // ถ้าเป็นแค่ filename ให้ใส่ /uploads/
+      else {
+        imageSrc = `${apiOrigin}/uploads/${url}`;
       }
     }
     
@@ -94,10 +110,22 @@ const RestaurantCard = ({ restaurant }) => {
     <div className="restaurant-card">
       <div className="restaurant-image">
         {coverImage ? (
-          <img src={coverImage} alt={name} />
-        ) : (
-          <div className="placeholder-image">🍽️</div>
-        )}
+          <img 
+            src={coverImage} 
+            alt={name}
+            onError={(e) => {
+              // ถ้ารูปไม่โหลดได้ ให้แสดง placeholder
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+        ) : null}
+        <div 
+          className="placeholder-image" 
+          style={{ display: coverImage ? 'none' : 'flex' }}
+        >
+          🍽️
+        </div>
       </div>
       <div className="restaurant-content">
         <h3 className="restaurant-name">{name}</h3>

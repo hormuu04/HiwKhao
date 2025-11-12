@@ -80,7 +80,23 @@ const EditRestaurant = () => {
     setError('');
     setLoading(true);
     try {
-      await restaurantAPI.update(id, formData);
+      // สร้างข้อมูลที่ส่งไป โดยลบ coordinate ออก (ไม่ต้องส่ง)
+      const updateData = { ...formData };
+      delete updateData.coordinate;
+      
+      // แปลง location object ให้ถูกต้อง
+      if (updateData.location && (updateData.location.latitude === '' || updateData.location.longitude === '')) {
+        // ถ้าไม่มี latitude หรือ longitude ให้ลบ location ออก
+        delete updateData.location;
+      } else if (updateData.location && updateData.location.latitude && updateData.location.longitude) {
+        // แปลงเป็น number
+        updateData.location = {
+          latitude: parseFloat(updateData.location.latitude),
+          longitude: parseFloat(updateData.location.longitude)
+        };
+      }
+      
+      await restaurantAPI.update(id, updateData);
       alert('แก้ไขข้อมูลร้านอาหารเรียบร้อยแล้ว!');
       navigate(`/restaurant/${id}`);
     } catch (err) {

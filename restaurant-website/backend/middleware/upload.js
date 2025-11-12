@@ -44,6 +44,21 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 } // 2MB
 });
 
-module.exports = { upload };
+// Middleware ที่รองรับทั้ง JSON และ multipart/form-data
+// ถ้าเป็น JSON ให้ข้าม multer (เพราะ express.json() จัดการแล้ว)
+// ถ้าเป็น multipart ให้ใช้ multer
+const optionalUpload = (req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  
+  // ถ้าเป็น JSON ให้ข้าม multer เพราะ express.json() จัดการแล้ว
+  if (contentType.includes('application/json')) {
+    return next();
+  }
+  
+  // ถ้าเป็น multipart/form-data ให้ใช้ multer
+  return upload.single('image')(req, res, next);
+};
+
+module.exports = { upload, optionalUpload };
 
 

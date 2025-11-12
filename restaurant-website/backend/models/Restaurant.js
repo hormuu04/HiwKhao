@@ -46,6 +46,10 @@ const restaurantSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  imageUrl: {
+    type: String,
+    trim: true
+  },
   location: {
     latitude: {
       type: Number,
